@@ -71,6 +71,11 @@ Pastikan Go, Docker dan MySQL sudah terinstall pada mesin Anda. Jika sudah, ikut
 Setelah aplikasi berjalan, bisa mengakses API melalui endpoint yang sudah ditentukan.
 Link API Postman yaitu https://documenter.getpostman.com/view/28422242/2s946bBui9
 
+## Cara Running
+Ada 2 metode
+1. `go run cmd/app/main.go` untuk running biasa dengan default autoMigrate
+2. `go run cmd/app/main.go --seed` untuk running dengan autoMigrate dan seed data
+
 ## Hak Cipta
 © 2023 Kurnia Cahya Febryanto, Christhoper Marcelino Mamahit, dan Nur Muhammad Ainul Yaqin.
 
