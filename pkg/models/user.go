@@ -12,10 +12,26 @@ type User struct {
 	Password string `gorm:"type:varchar(255);not null" json:"password"`
 }
 
+func (u *User) TableName() string {
+	return "users"
+}
+
 type UserUsecase interface {
-	// define your usecase methods here
+	GetByID(id uint) (*User, error)
+	GetByEmail(email string) (*User, error)
+	GetAll() ([]User, error)
+	CreateUser(user *User) error
+	UpdateUser(user *User) error
+	DeleteUser(id uint) error
+	// add more methods as necessary
 }
 
 type UserRepository interface {
-	// define your repository methods here
+	FindByID(id uint) (*User, error)
+	FindByEmail(email string) (*User, error)
+	FindAll() ([]User, error)
+	Save(user *User) error
+	Update(user *User) error
+	Delete(user *User) error
+	// add more methods as necessary
 }

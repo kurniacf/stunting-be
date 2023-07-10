@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/kurniacf/stunting-be/configs"
-	"github.com/kurniacf/stunting-be/pkg/delivery/http"
+	httpDeliver "github.com/kurniacf/stunting-be/pkg/delivery/http"
 	"github.com/kurniacf/stunting-be/pkg/repository"
 	"github.com/kurniacf/stunting-be/pkg/usecase"
 )
@@ -16,8 +16,8 @@ func main() {
 
 	r := gin.Default()
 
-	v1 := r.Group("/v1")
-	http.NewUserHandler(v1, userUsecase)
+	v1 := r.Group("/api")
+	httpDeliver.NewUserHandler(v1, userUsecase)
 
 	r.Run()
 }
