@@ -11,19 +11,25 @@ import (
 	"gorm.io/gorm"
 )
 
-func InitDB(seed bool) *gorm.DB {
+func InitDB(seed bool, prod bool) *gorm.DB {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("No .env file found")
 	}
 
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	dbName := os.Getenv("DB_NAME")
+	var dsn string
+	if prod {
+		dsn = os.Getenv("DSN")
+	} else {
+		user := os.Getenv("DB_USER")
+		password := os.Getenv("DB_PASSWORD")
+		host := os.Getenv("DB_HOST")
+		port := os.Getenv("DB_PORT")
+		dbName := os.Getenv("DB_NAME")
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, port, dbName)
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, password, host, port, dbName)
+	}
+
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database")

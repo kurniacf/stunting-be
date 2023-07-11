@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/kurniacf/stunting-be/pkg/middleware"
 	"github.com/kurniacf/stunting-be/pkg/models"
 	"net/http"
 	"strconv"
@@ -16,12 +17,15 @@ func NewUserHandler(r *gin.RouterGroup, uu models.UserUsecase) {
 		UserUsecase: uu,
 	}
 
-	r.GET("/users/:id", handler.FindUserByID)
-	r.GET("/users", handler.FindAllUsers) // New route for FindAllUsers
-	r.POST("/users", handler.CreateUser)
-	r.PUT("/users/:id", handler.UpdateUser)
-	r.DELETE("/users/:id", handler.DeleteUser)
-	// Add more routes as necessary
+	authorized := r.Group("/", middleware.JwtAuthMiddleware())
+	{
+		authorized.GET("/users/:id", handler.FindUserByID)
+		authorized.GET("/users", handler.FindAllUsers)
+		authorized.POST("/users", handler.CreateUser)
+		authorized.PUT("/users/:id", handler.UpdateUser)
+		authorized.DELETE("/users/:id", handler.DeleteUser)
+		// Add more routes as necessary
+	}
 }
 
 func (uh *UserHandler) FindUserByID(c *gin.Context) {
