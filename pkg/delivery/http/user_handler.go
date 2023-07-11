@@ -22,28 +22,10 @@ func NewUserHandler(r *gin.RouterGroup, uu models.UserUsecase) {
 	authorized := r.Group("/user", middleware.JwtAuthMiddleware())
 	{
 		authorized.GET("/", handler.GetUser)
-		authorized.GET("/:id", handler.FindUserByID)
-		authorized.POST("/", handler.CreateUser)
 		authorized.PUT("/:id", handler.UpdateUser)
 		authorized.DELETE("/:id", handler.DeleteUser)
 		// Add more routes as necessary
 	}
-}
-
-func (uh *UserHandler) FindUserByID(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	user, err := uh.UserUsecase.GetByID(uint(id))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": user})
 }
 
 type getUserResponse struct {
@@ -70,21 +52,6 @@ func (uh *UserHandler) GetUser(c *gin.Context) {
 			Email: user.Email,
 		},
 	})
-}
-
-func (uh *UserHandler) CreateUser(c *gin.Context) {
-	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := uh.UserUsecase.CreateUser(&user); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{"data": user})
 }
 
 func (uh *UserHandler) UpdateUser(c *gin.Context) {
