@@ -72,9 +72,11 @@ Setelah aplikasi berjalan, bisa mengakses API melalui endpoint yang sudah ditent
 Link API Postman yaitu https://documenter.getpostman.com/view/28422242/2s946bBui9
 
 ## Cara Running
-Ada 2 metode
-1. `go run cmd/app/main.go` untuk running biasa dengan default autoMigrate
+Ada banyak metode
+1. `go run cmd/app/main.go` untuk running biasa dengan default autoMigrate dan database local
 2. `go run cmd/app/main.go --seed` untuk running dengan autoMigrate dan seed data
+3. `go run cmd/app/main.go --prod` untuk running dengan database production PlanetScale
+4. `go run cmd/app/main.go --seed --prod` untuk running dengan database production PlanetScale dan seed data
 
 ## Hak Cipta
 © 2023 Kurnia Cahya Febryanto, Christhoper Marcelino Mamahit, dan Nur Muhammad Ainul Yaqin.

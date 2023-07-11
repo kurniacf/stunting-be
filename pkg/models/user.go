@@ -9,7 +9,8 @@ type User struct {
 	gorm.Model
 	Name     string `gorm:"type:varchar(255);not null" json:"name"`
 	Email    string `gorm:"unique;type:varchar(255);not null" json:"email"`
-	Password string `gorm:"type:varchar(255);not null" json:"password"`
+	Password string `gorm:"type:varchar(255);not null" json:"-"`
+	Token    string `gorm:"type:text" json:"token,omitempty"`
 }
 
 func (u *User) TableName() string {
@@ -23,6 +24,7 @@ type UserUsecase interface {
 	CreateUser(user *User) error
 	UpdateUser(user *User) error
 	DeleteUser(id uint) error
+	CheckPassword(email string, password string) error
 	// add more methods as necessary
 }
 
