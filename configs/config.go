@@ -2,8 +2,9 @@ package configs
 
 import (
 	"fmt"
-	"github.com/kurniacf/stunting-be/pkg/seeds"
 	"os"
+
+	"github.com/kurniacf/stunting-be/pkg/seeds"
 
 	"github.com/joho/godotenv"
 	"github.com/kurniacf/stunting-be/pkg/models"
@@ -35,7 +36,7 @@ func InitDB(seed bool, prod bool) *gorm.DB {
 		panic("Failed to connect to database")
 	}
 
-	err = db.AutoMigrate(&models.User{})
+	err = db.AutoMigrate(&models.User{}, &models.Child{})
 	if err != nil {
 		panic("Failed to perform database migration")
 	}
