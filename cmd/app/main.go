@@ -2,9 +2,11 @@ package main
 
 import (
 	"flag"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kurniacf/stunting-be/configs"
 	httpDeliver "github.com/kurniacf/stunting-be/pkg/delivery/http"
+	"github.com/kurniacf/stunting-be/pkg/middleware"
 	"github.com/kurniacf/stunting-be/pkg/repository"
 	"github.com/kurniacf/stunting-be/pkg/usecase"
 )
@@ -21,6 +23,9 @@ func main() {
 
 	authUsecase := usecase.NewAuthUsecase(userUsecase)
 
+	childRepo := repository.NewChildRepository(db)
+	childUseCase := usecase.NewChildUsecase(childRepo)
+
 	r := gin.Default()
 
 	api := r.Group("/api")
@@ -30,6 +35,10 @@ func main() {
 	// Create a new group for auth
 	auth := api.Group("/auth")
 	httpDeliver.NewAuthHandler(auth, authUsecase, userUsecase)
+
+	// // Create a new group for auth
+	child := api.Group("/child", middleware.JwtAuthMiddleware())
+	httpDeliver.NewChildHandler(child, childUseCase)
 
 	r.Run()
 }
