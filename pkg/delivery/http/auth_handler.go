@@ -1,10 +1,12 @@
 package http
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/kurniacf/stunting-be/pkg/api"
 	"github.com/kurniacf/stunting-be/pkg/models"
 	"github.com/kurniacf/stunting-be/pkg/usecase"
-	"net/http"
 )
 
 type AuthHandler struct {
@@ -22,14 +24,8 @@ func NewAuthHandler(r *gin.RouterGroup, au usecase.AuthUsecase, uu models.UserUs
 	r.POST("/login", handler.Login)
 }
 
-type registerRequest struct {
-	Name     string `json:"name" binding:"required"`
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-
 func (ah *AuthHandler) Register(c *gin.Context) {
-	var req registerRequest
+	var req api.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -49,13 +45,8 @@ func (ah *AuthHandler) Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": user})
 }
 
-type loginRequest struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-
 func (ah *AuthHandler) Login(c *gin.Context) {
-	var req loginRequest
+	var req api.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -67,5 +58,9 @@ func (ah *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": gin.H{"token": token}})
+	c.JSON(http.StatusOK, gin.H{
+		"data": api.LoginResponse{
+			Token: token,
+		},
+	})
 }
