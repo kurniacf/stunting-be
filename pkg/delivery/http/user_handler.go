@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kurniacf/stunting-be/pkg/api"
 	"github.com/kurniacf/stunting-be/pkg/middleware"
 	"github.com/kurniacf/stunting-be/pkg/models"
 	"gorm.io/gorm"
@@ -28,15 +29,10 @@ func NewUserHandler(r *gin.RouterGroup, uu models.UserUsecase) {
 	}
 }
 
-type getUserResponse struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
-
 func (uh *UserHandler) GetUser(c *gin.Context) {
-	email, _ := c.Get("email")
+	email, _ := c.Get("user_id")
 
-	user, err := uh.UserUsecase.GetByEmail(email.(string))
+	user, err := uh.UserUsecase.GetByID(uint(email.(float64)))
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Data not found"})
@@ -47,7 +43,7 @@ func (uh *UserHandler) GetUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": getUserResponse{
+		"data": api.GetUserResponse{
 			Name:  user.Name,
 			Email: user.Email,
 		},
