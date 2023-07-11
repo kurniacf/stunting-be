@@ -2,42 +2,38 @@ package middleware
 
 import (
 	"net/http"
-	"os"
-	"strings"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/kurniacf/stunting-be/pkg/helper"
 )
 
 func JwtAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		bearerToken := c.GetHeader("Authorization")
-
-		isTokenValid := strings.HasPrefix(bearerToken, "Bearer ")
-		if !isTokenValid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-		}
-
-		tokenString := strings.Split(bearerToken, " ")[1]
-		if tokenString == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-		}
-
-		token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			if jwt.GetSigningMethod("HS256") != token.Method {
-				return nil, jwt.ErrSignatureInvalid
-			}
-			return []byte(os.Getenv("JWT_SECRET")), nil
-		})
-
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			c.Abort()
+		bearerToken, err := helper.ValidateBearerToken(c)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"message": err.Error(),
+			})
 			return
 		}
 
-		c.Set("email", claims["email"])
+		token, err := helper.GetBearerToken(bearerToken)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+
+		claims, err := helper.VerifyToken(token)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"message": "Unauthorized",
+			})
+			return
+		}
+
+		c.Set("user_id", claims["user_id"])
 
 		c.Next()
 	}

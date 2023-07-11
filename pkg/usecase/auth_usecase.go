@@ -1,9 +1,8 @@
 package usecase
 
 import (
-	"github.com/dgrijalva/jwt-go"
+	"github.com/kurniacf/stunting-be/pkg/helper"
 	"github.com/kurniacf/stunting-be/pkg/models"
-	"time"
 )
 
 type AuthUsecase interface {
@@ -31,21 +30,16 @@ func (a *authUsecase) Login(email string, password string) (string, error) {
 		return "", err
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": user.Email,
-		"exp":   time.Now().Add(time.Hour * 72).Unix(),
-	})
-
-	tokenString, err := token.SignedString([]byte("secret"))
+	token, err := helper.GenerateToken(user.ID)
 	if err != nil {
 		return "", err
 	}
 
-	user.Token = tokenString
+	user.Token = token
 	err = a.userUsecase.UpdateUser(user)
 	if err != nil {
 		return "", err
 	}
 
-	return tokenString, nil
+	return token, nil
 }
