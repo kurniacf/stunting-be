@@ -1,11 +1,13 @@
 package http
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kurniacf/stunting-be/pkg/middleware"
 	"github.com/kurniacf/stunting-be/pkg/models"
-	"net/http"
-	"strconv"
+	"gorm.io/gorm"
 )
 
 type UserHandler struct {
@@ -17,13 +19,13 @@ func NewUserHandler(r *gin.RouterGroup, uu models.UserUsecase) {
 		UserUsecase: uu,
 	}
 
-	authorized := r.Group("/", middleware.JwtAuthMiddleware())
+	authorized := r.Group("/user", middleware.JwtAuthMiddleware())
 	{
-		authorized.GET("/users/:id", handler.FindUserByID)
-		authorized.GET("/users", handler.FindAllUsers)
-		authorized.POST("/users", handler.CreateUser)
-		authorized.PUT("/users/:id", handler.UpdateUser)
-		authorized.DELETE("/users/:id", handler.DeleteUser)
+		authorized.GET("/", handler.GetUser)
+		authorized.GET("/:id", handler.FindUserByID)
+		authorized.POST("/", handler.CreateUser)
+		authorized.PUT("/:id", handler.UpdateUser)
+		authorized.DELETE("/:id", handler.DeleteUser)
 		// Add more routes as necessary
 	}
 }
@@ -44,14 +46,30 @@ func (uh *UserHandler) FindUserByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": user})
 }
 
-func (uh *UserHandler) FindAllUsers(c *gin.Context) {
-	users, err := uh.UserUsecase.GetAll()
+type getUserResponse struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+func (uh *UserHandler) GetUser(c *gin.Context) {
+	email, _ := c.Get("email")
+
+	user, err := uh.UserUsecase.GetByEmail(email.(string))
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Data not found"})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": users})
+	c.JSON(http.StatusOK, gin.H{
+		"data": getUserResponse{
+			Name:  user.Name,
+			Email: user.Email,
+		},
+	})
 }
 
 func (uh *UserHandler) CreateUser(c *gin.Context) {
