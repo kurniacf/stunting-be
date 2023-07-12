@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// User ...
+// Child ...
 type Child struct {
 	gorm.Model
 	Name         string    `gorm:"type:varchar(255);not null"`

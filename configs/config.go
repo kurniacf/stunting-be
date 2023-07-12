@@ -46,6 +46,18 @@ func InitDB(seed bool, prod bool) *gorm.DB {
 		if err != nil {
 			panic("Failed to seed users")
 		}
+		err = seeds.SeedChildren(db)
+		if err != nil {
+			panic("Failed to seed children")
+		}
+		err = seeds.SeedTodos(db)
+		if err != nil {
+			panic("Failed to seed todos")
+		}
+		err = seeds.SeedTodoLists(db)
+		if err != nil {
+			panic("Failed to seed todo lists")
+		}
 	}
 
 	return db
