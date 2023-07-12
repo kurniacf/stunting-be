@@ -2,6 +2,7 @@ package seeds
 
 import (
 	"github.com/kurniacf/stunting-be/pkg/models"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -15,6 +16,12 @@ func SeedUsers(db *gorm.DB) error {
 	}
 
 	for _, user := range users {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+		user.Password = string(hashedPassword)
+
 		if err := db.Create(&user).Error; err != nil {
 			return err
 		}
