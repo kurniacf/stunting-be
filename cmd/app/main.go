@@ -26,6 +26,12 @@ func main() {
 	childRepo := repository.NewChildRepository(db)
 	childUseCase := usecase.NewChildUsecase(childRepo)
 
+	todoRepo := repository.NewTodoRepository(db)
+	todoUseCase := usecase.NewTodoUsecase(todoRepo)
+
+	todoListRepo := repository.NewTodoListRepository(db)
+	todoListUseCase := usecase.NewTodoListUsecase(todoListRepo, childRepo)
+
 	r := gin.Default()
 
 	api := r.Group("/api")
@@ -36,9 +42,17 @@ func main() {
 	auth := api.Group("/auth")
 	httpDeliver.NewAuthHandler(auth, authUsecase, userUsecase)
 
-	// // Create a new group for auth
+	// Create a new group for child
 	child := api.Group("/child", middleware.JwtAuthMiddleware())
 	httpDeliver.NewChildHandler(child, childUseCase)
+
+	// Create a new group for todo
+	todo := api.Group("/todo")
+	httpDeliver.NewTodoHandler(todo, todoUseCase)
+
+	// Create a new group for todo
+	todoList := api.Group("/todo-list")
+	httpDeliver.NewTodoListHandler(todoList, todoListUseCase)
 
 	r.Run()
 }
